@@ -5,7 +5,7 @@ namespace SimpleElevator.Models
     public class ElevatorRequestDetail : RequestBase
     {
         public Guid Id { get; set; }
-        public DateTime RequestDate { get; set; } = DateTime.Now;
+        public DateTime AssignedDate { get; set; } = DateTime.Now;
 
         public ElevatorRequestDetail(Guid requestId, int floor, Direction direction)
         {

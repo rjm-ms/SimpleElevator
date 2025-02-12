@@ -112,7 +112,7 @@ namespace SimpleElevator
                     case StopAction.Loading:
                         records = [.. PickupFloors
                         .Where(p => p.Floor == CurrentFloor)
-                        .OrderBy(x => x.RequestDate)];
+                        .OrderBy(x => x.AssignedDate)];
 
                         foreach (var item in records)
                             PickupFloors.Remove(item);
@@ -120,7 +120,7 @@ namespace SimpleElevator
                     case StopAction.Unloading:
                         records = [.. DestinationFloors
                         .Where(p => p.Floor == CurrentFloor)
-                        .OrderBy(x => x.RequestDate)];
+                        .OrderBy(x => x.AssignedDate)];
 
                         foreach (var item in records)
                         {
@@ -154,7 +154,7 @@ namespace SimpleElevator
 
                 while (IsMoving)
                 {
-                    var pickupFloor = PickupFloors.OrderBy(x => x.RequestDate).FirstOrDefault()?.Floor;
+                    var pickupFloor = PickupFloors.OrderBy(x => x.AssignedDate).FirstOrDefault()?.Floor;
                     var destinationFloor = DestinationFloors.OrderByDescending(x => x.Floor).FirstOrDefault()?.Floor;
 
                     if (destinationFloor is null)
