@@ -34,7 +34,7 @@ do
 }
 while (!isValidRequestCountInput);
 
-ElevatorHelpers.Print($"\nElevator simulation started: {onStartElevatorCount} elavator(s) will accomodate {onStartRequestCount} random request(s).");
+ElevatorHelpers.Print($"\nElevator simulation started: {onStartElevatorCount} elevator(s) will accomodate {onStartRequestCount} random request(s).");
 
 var elevatorController = new ElevatorController();
 elevatorController.StartSimulation(onStartElevatorCount, onStartRequestCount);
