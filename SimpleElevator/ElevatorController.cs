@@ -16,10 +16,10 @@ namespace SimpleElevator
 
         }
 
-        public void StartSimulation(int onStartNumberOfElevators, int onStartRequestCount)
+        public void StartSimulation(int onStartElevatorCount, int onStartRequestCount)
         {
             OnStartRequestCount = onStartRequestCount;
-            InitializeElevators(onStartNumberOfElevators);
+            InitializeElevators(onStartElevatorCount);
             StartAddToQueueBackgroundProcess();
             StartElevatorDispatchBackgroundProcess();
         }

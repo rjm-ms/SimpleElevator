@@ -1,15 +1,15 @@
 ﻿using SimpleElevator;
 using SimpleElevator.Helpers;
 
-int onStartNumberOfElevators;
+int onStartElevatorCount;
 bool isValidNumberOfElevatorsInput;
 
 do
 {
     Console.Write("Enter number of available elevators (1 to 4 only): ");
-    isValidNumberOfElevatorsInput = int.TryParse(Console.ReadLine(), out onStartNumberOfElevators) &&
-                   onStartNumberOfElevators >= 1 &&
-                   onStartNumberOfElevators <= 4;
+    isValidNumberOfElevatorsInput = int.TryParse(Console.ReadLine(), out onStartElevatorCount) &&
+                   onStartElevatorCount >= 1 &&
+                   onStartElevatorCount <= 4;
 
     if (!isValidNumberOfElevatorsInput)
     {
@@ -23,7 +23,7 @@ int onStartRequestCount;
 bool isValidRequestCountInput;
 do
 {
-    Console.Write($"Enter number of random calls for {onStartNumberOfElevators} available elevator(s): ");
+    Console.Write($"Enter number of random calls to {onStartElevatorCount} available elevator(s): ");
     isValidRequestCountInput = int.TryParse(Console.ReadLine(), out onStartRequestCount) &&
                    onStartRequestCount > 0;
 
@@ -34,9 +34,10 @@ do
 }
 while (!isValidRequestCountInput);
 
+ElevatorHelpers.Print($"\nElevator simulation started: {onStartElevatorCount} elavator(s) will accomodate {onStartRequestCount} random request(s).");
 
 var elevatorController = new ElevatorController();
-elevatorController.StartSimulation(onStartNumberOfElevators, onStartRequestCount);
+elevatorController.StartSimulation(onStartElevatorCount, onStartRequestCount);
 
 do
 {
