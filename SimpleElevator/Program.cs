@@ -36,7 +36,7 @@ while (!isValidRequestCountInput);
 
 
 var elevatorController = new ElevatorController();
-elevatorController.StartSimulation(onStartRequestCount, onStartNumberOfElevators);
+elevatorController.StartSimulation(onStartNumberOfElevators, onStartRequestCount);
 
 do
 {
