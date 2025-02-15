@@ -10,7 +10,7 @@ namespace SimpleElevator.UnitTests
         {
             // Arrange
             var controller = new ElevatorController();
-            controller.InitializeElevators();
+            controller.InitializeElevators(2);
             var elevator1 = controller.Elevators[0];
             var elevator2 = controller.Elevators[1];
             elevator1.SetCurentFloor(2);
@@ -32,7 +32,7 @@ namespace SimpleElevator.UnitTests
         {
             // Arrange
             var controller = new ElevatorController();
-            controller.InitializeElevators();
+            controller.InitializeElevators(2);
             var elevator1 = controller.Elevators[0];
             var elevator2 = controller.Elevators[1];
             elevator1.SetCurentFloor(2);

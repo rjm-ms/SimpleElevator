@@ -16,21 +16,21 @@ namespace SimpleElevator
 
         }
 
-        public async Task StartSimulation(int onStartRequestCount)
+        public void StartSimulation(int onStartNumberOfElevators, int onStartRequestCount)
         {
             OnStartRequestCount = onStartRequestCount;
-            InitializeElevators();
+            InitializeElevators(onStartNumberOfElevators);
             StartAddToQueueBackgroundProcess();
             StartElevatorDispatchBackgroundProcess();
         }
 
 
-        public void InitializeElevators()
+        public void InitializeElevators(int onStartNumberOfElevators)
         {
-            Elevators.Add(ElevatorSingleton.GetInstance(ElevatorCar.One));
-            Elevators.Add(ElevatorSingleton.GetInstance(ElevatorCar.Two));
-            Elevators.Add(ElevatorSingleton.GetInstance(ElevatorCar.Three));
-            Elevators.Add(ElevatorSingleton.GetInstance(ElevatorCar.Four));
+            for (int i = 1; i <= onStartNumberOfElevators; i++)
+            {
+                Elevators.Add(ElevatorSingleton.GetInstance((ElevatorCar)i));
+            }
         }
 
         void StartAddToQueueBackgroundProcess()
@@ -43,13 +43,16 @@ namespace SimpleElevator
 
                     Direction direction = random.Next(2) == 0 ? Direction.Up : Direction.Down;
                     int requestedFloor = random.Next(1, 11); // Generates a number from 1 to 10
-                    
+
                     if ((direction == Direction.Up && requestedFloor < 10) ||
                         (direction == Direction.Down && requestedFloor > 1))
                     {
                         var request = new ElevatorRequest(requestedFloor, direction);
-                        ElevatorRequests.Enqueue(request);
-                        QueuedRequestCount++;
+                        if (!ElevatorRequests.Contains(request))
+                        {
+                            ElevatorRequests.Enqueue(request);
+                            QueuedRequestCount++;
+                        }
                     }
                 }
             }
@@ -138,7 +141,7 @@ namespace SimpleElevator
                     assignedElevator.AddPickupFloor(requestId, request.PickupFloor, request.Direction);
 
                     ElevatorHelpers.Print($"({++AssignedRequestCount}/{OnStartRequestCount}) `{request.Direction}` request on floor " +
-                        $"{request.PickupFloor} received. Assigned to `{assignedElevator.ElevatorCar.GetDescription()}`");
+                        $"{request.PickupFloor} received. Assigned to `{assignedElevator.ElevatorCar.GetName()}`");
 
                     if (!assignedElevator.IsMoving)
                     {

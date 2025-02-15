@@ -39,13 +39,13 @@ namespace SimpleElevator
         {
             ElevatorCar = elevator;
             CurrentFloor = 1;
-            Console.WriteLine($"OnStart: {elevator.GetDescription()} is on floor {CurrentFloor}");
+            ElevatorHelpers.Print($"OnStart: {elevator.GetName()} is on floor {CurrentFloor}", elevator.GetColor());
         }
 
         public void MoveUp()
         {
             bool hasStopAction = false;
-            if (CurrentFloor < 10)
+            if (CurrentFloor <= 10)
             {
                 Direction = Direction.Up;
                 if (PickupFloors.Any(p => p.Floor == CurrentFloor))
@@ -63,7 +63,7 @@ namespace SimpleElevator
                 if (!hasStopAction)
                 {
                     IsMoving = true;
-                    ElevatorHelpers.Print($"{ElevatorCar.GetDescription()} is on floor {CurrentFloor} (moving up)", ElevatorCar.GetColor());
+                    ElevatorHelpers.Print($"{ElevatorCar.GetName()} is on floor {CurrentFloor} (moving up)", ElevatorCar.GetColor());
                     Thread.Sleep(Constants.ElevatorFloorMoveTimeSec);
                     CurrentFloor++;
                 }
@@ -89,7 +89,7 @@ namespace SimpleElevator
                 else
                 {
                     IsMoving = true;
-                    ElevatorHelpers.Print($"{ElevatorCar.GetDescription()} is on floor {CurrentFloor} (moving down)", ElevatorCar.GetColor());
+                    ElevatorHelpers.Print($"{ElevatorCar.GetName()} is on floor {CurrentFloor} (moving down)", ElevatorCar.GetColor());
                     Thread.Sleep(Constants.ElevatorFloorMoveTimeSec);
                     CurrentFloor--;
                 }
@@ -106,10 +106,10 @@ namespace SimpleElevator
                     description = StopAction.Unloading.GetDescription();
                 }
 
-                ElevatorHelpers.Print($"{ElevatorCar.GetDescription()} is on floor {CurrentFloor} (stopped). {description}", ElevatorCar.GetColor());
+                ElevatorHelpers.Print($"{ElevatorCar.GetName()} is on floor {CurrentFloor} (stopped). {description}", ElevatorCar.GetColor());
                 Thread.Sleep(Constants.ElevatorPassengerTransitionTimeSec); // 10 seconds for passengers to enter/leave
 
-                //Update passengers list
+                // Update PickupFloors / DestinationFloors list
                 var records = new List<ElevatorRequestDetail>();
                 switch (action)
                 {
@@ -123,8 +123,10 @@ namespace SimpleElevator
                             // The destination for the car should be picked after the person has entered the elevator.
                             int destinationFloor = ElevatorHelpers.GenerateRandomFloorDestination(item.Direction, item.Floor);
                             AddDestinationFloor(item.Id, destinationFloor, item.Direction);
-                            ElevatorHelpers.Print($"Entered passengers on floor {item.Floor} selected floor {destinationFloor} as their destination.");
+                            ElevatorHelpers.Print($"{ElevatorCar.GetName()} Entered passengers on floor {item.Floor} picked " +
+                                $"floor {destinationFloor} as their destination.", ElevatorCar.GetColor());
 
+                            // Remove loaded passengers
                             PickupFloors.Remove(item);
                         }
                         break;
@@ -139,18 +141,6 @@ namespace SimpleElevator
                             if (!PickupFloors.Any(p => p.Id == item.Id))
                                 DestinationFloors.Remove(item);
                         }
-
-                        if (DestinationFloors.Count == 0)
-                        {
-                            Direction = Direction.Down;
-                            while (CurrentFloor > 1)
-                            {
-                                MoveDown();
-                            }
-                            Stop();
-                            Direction = Direction.Up;
-                        }
-
                         break;
                     case StopAction.Idle:
                         PickupFloors.Clear();
@@ -163,7 +153,6 @@ namespace SimpleElevator
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -186,30 +175,43 @@ namespace SimpleElevator
                         while (CurrentFloor <= pickupFloor)
                         {
                             MoveUp();
-                            if (CurrentFloor == pickupFloor && pickupFloorDirection.HasValue 
-                                && pickupFloorDirection.Equals(Direction.Down))
-                            {
-                                break;
-                            }
+                            if (CurrentFloor == pickupFloor && pickupFloorDirection.HasValue
+                                && pickupFloorDirection.Equals(Direction.Down)) break;
                         }
                     }
 
                     int? destinationFloor = FindNearestDestination();
-                    if (destinationFloor.HasValue && destinationFloor >= CurrentFloor)
+                    if (destinationFloor.HasValue)
                     {
-                        Direction = Direction.Up;
-                        while (CurrentFloor <= destinationFloor)
+                        if (destinationFloor >= CurrentFloor && Direction == Direction.Up)
                         {
-                            MoveUp();
+                            Direction = Direction.Up;
+                            while (CurrentFloor <= destinationFloor)
+                            {
+                                MoveUp();
+                                if (CurrentFloor == 10 || !FindNearestDestination().HasValue) break;
+                            }
+                        }
+                        else
+                        {
+                            Direction = Direction.Down;
+                            while (CurrentFloor >= destinationFloor)
+                            {
+                                MoveDown();
+                                if (CurrentFloor == 1) break;
+                            }
                         }
                     }
-                    else if (destinationFloor.HasValue && destinationFloor < CurrentFloor)
+
+                    if (PickupFloors.Count == 0 && DestinationFloors.Count == 0 && IsMoving)
                     {
                         Direction = Direction.Down;
-                        while (CurrentFloor >= destinationFloor)
+                        while (CurrentFloor > 1)
                         {
                             MoveDown();
                         }
+                        Stop();
+                        Direction = Direction.Up;
                     }
                 }
             }
@@ -219,44 +221,22 @@ namespace SimpleElevator
             }
         }
 
-        private void MoveToFloor(int floor, Direction direction)
-        {
-            Direction = direction;
-            if (direction == Direction.Up)
-            {
-                while (CurrentFloor <= floor)
-                {
-                    MoveUp();
-                }
-            }
-            else
-            {
-                MoveDown();
-            }
-
-        }
-
         private int? FindNearestDestination()
         {
-            var record = DestinationFloors.OrderByDescending(x => x.Floor).FirstOrDefault();
+            var record = DestinationFloors
+                .Where(x => Direction == Direction.Up ? x.Floor >= CurrentFloor : x.Floor <= CurrentFloor)
+                .OrderBy(x => Direction == Direction.Up ? x.Floor : -x.Floor)
+                .FirstOrDefault();
 
             if (record is null)
-                return null;
-
-            foreach (var destination in DestinationFloors.Where(x => x.Direction == Direction))
             {
-                if (Direction == Direction.Up)
-                {
-                    if (record.Floor > destination.Floor && CurrentFloor <= destination.Floor)
-                        record.Floor = destination.Floor;
-                }
-                else
-                {
-                    if (record.Floor < destination.Floor && CurrentFloor >= destination.Floor)
-                        record.Floor = destination.Floor;
-                }
+                 record = DestinationFloors
+                .Where(x => x.Floor >= CurrentFloor || x.Floor <= CurrentFloor)
+                .OrderBy(x => Direction == Direction.Up ? x.Floor : -x.Floor)
+                .FirstOrDefault();
             }
-            return record.Floor;
+
+            return record?.Floor;
         }
     }
 }
