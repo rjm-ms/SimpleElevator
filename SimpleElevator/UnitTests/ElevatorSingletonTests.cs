@@ -3,6 +3,7 @@ using Xunit;
 
 namespace SimpleElevator.UnitTests
 {
+    [Collection("ElevatorSingletonTestCollection")]
     public class ElevatorSingletonTests
     {
         [Fact]

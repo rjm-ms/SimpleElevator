@@ -3,6 +3,7 @@ using Xunit;
 
 namespace SimpleElevator.UnitTests
 {
+    [Collection("ElevatorControllerTestCollection")]
     public class ElevatorControllerTests
     {
         public static IEnumerable<object[]> GetMovingElevatorTestData()
