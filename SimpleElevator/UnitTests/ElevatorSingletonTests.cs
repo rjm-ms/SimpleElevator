@@ -42,7 +42,7 @@ namespace SimpleElevator.UnitTests
         [Fact]
         public async Task MoveUp_ShouldIncreaseCurrentFloor()
         {
-            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
+            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.Three);
             elevator.MoveUp();
 
             Assert.Equal(2, elevator.CurrentFloor);
