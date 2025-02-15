@@ -21,22 +21,29 @@ namespace SimpleElevator.Helpers
     }
 
     public enum ElevatorCar {
-        [Description("Car 1")]
+        [Name("Car 1")]
         [Color(ConsoleColor.Blue)]
         One = 1,
-        [Description("Car 2")]
+        [Name("Car 2")]
         [Color(ConsoleColor.Yellow)]
         Two,
-        [Description("Car 3")]
-        [Color(ConsoleColor.Red)]
+        [Name("Car 3")]
+        [Color(ConsoleColor.Magenta)]
         Three,
+        [Name("Car 4")]
         [Color(ConsoleColor.Green)]
-        [Description("Car 4")]
         Four,
     }
 
     public static class EnumExtensions
     {
+        public static string GetName(this Enum value)
+        {
+            var field = value.GetType().GetField(value.ToString());
+            var attribute = (NameAttribute)Attribute.GetCustomAttribute(field, typeof(NameAttribute));
+            return attribute == null ? value.ToString() : attribute.Name;
+        }
+
         public static string GetDescription(this Enum value)
         {
             var field = value.GetType().GetField(value.ToString());
@@ -68,6 +75,17 @@ namespace SimpleElevator.Helpers
         public ColorAttribute(ConsoleColor color)
         {
             this.Color = color;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    sealed class NameAttribute : Attribute
+    {
+        public string Name { get; }
+
+        public NameAttribute(string name)
+        {
+            this.Name = name;
         }
     }
 }

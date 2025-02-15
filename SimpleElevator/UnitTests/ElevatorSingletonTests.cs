@@ -1,11 +1,9 @@
 using SimpleElevator.Helpers;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace SimpleElevator.UnitTests
 {
+    [Collection("ElevatorSingletonTestCollection")]
     public class ElevatorSingletonTests
     {
         [Fact]
@@ -20,7 +18,7 @@ namespace SimpleElevator.UnitTests
         [Fact]
         public void AddPickupFloor_ShouldAddPickupFloor()
         {
-            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
+            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.Two);
             var requestId = Guid.NewGuid();
             elevator.AddPickupFloor(requestId, 3, Direction.Up);
 
@@ -31,7 +29,7 @@ namespace SimpleElevator.UnitTests
         [Fact]
         public void AddDestinationFloor_ShouldAddDestinationFloor()
         {
-            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
+            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.Three);
             var requestId = Guid.NewGuid();
             elevator.AddDestinationFloor(requestId, 5, Direction.Up);
 
@@ -40,16 +38,17 @@ namespace SimpleElevator.UnitTests
         }
 
         [Fact]
-        public async Task MoveUp_ShouldIncreaseCurrentFloor()
+        public void MoveUp_ShouldIncreaseCurrentFloor()
         {
-            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
+            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.Four);
+            elevator.SetCurentFloor(4);
             elevator.MoveUp();
 
-            Assert.Equal(2, elevator.CurrentFloor);
+            Assert.Equal(5, elevator.CurrentFloor);
         }
 
         [Fact]
-        public async Task MoveDown_ShouldDecreaseCurrentFloor()
+        public void MoveDown_ShouldDecreaseCurrentFloor()
         {
             var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
             elevator.SetCurentFloor(5);
@@ -59,9 +58,9 @@ namespace SimpleElevator.UnitTests
         }
 
         [Fact]
-        public async Task Stop_ShouldClearPickupAndDestinationFloors()
+        public void Stop_ShouldClearPickupAndDestinationFloors()
         {
-            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.One);
+            var elevator = ElevatorSingleton.GetInstance(ElevatorCar.Two);
             var requestId = Guid.NewGuid();
             elevator.AddPickupFloor(requestId, 3, Direction.Up);
             elevator.AddDestinationFloor(requestId, 5, Direction.Up);
